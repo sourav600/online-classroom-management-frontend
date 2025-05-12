@@ -27,7 +27,7 @@ class UserRemoteDataSourceImpl implements UserRemoteDataSource {
   Future<UserModel> register(UserModel user) async {
     try {
       final response = await client.post(
-        Uri.parse('${Constants.baseUrlLocalhost}/api/user/register'),
+        Uri.parse('${Constants.baseUrl}/api/user/register'),
         headers: await _getHeaders(),
         body: jsonEncode(user.toJson()),
       );
