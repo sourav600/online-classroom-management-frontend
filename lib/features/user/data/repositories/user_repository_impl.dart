@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:dartz/dartz.dart';
 import 'package:online_classroom_frontend/core/error/exceptions.dart';
 import 'package:online_classroom_frontend/core/error/failures.dart';
+import 'package:online_classroom_frontend/features/user/data/datasources/user_local_data_source.dart';
 import 'package:online_classroom_frontend/features/user/domain/entities/auth_response.dart';
 import 'package:online_classroom_frontend/features/user/domain/repositories/user_repository.dart';
 import '../../../../core/network/network_info.dart';
@@ -11,10 +12,12 @@ import 'package:online_classroom_frontend/features/user/domain/entities/user.dar
 
 class UserRepositoryImpl implements UserRepository {
   final UserRemoteDataSourceImpl remoteDataSource;
+  final UserLocalDataSourceImpl localDataSource;
   final NetworkInfo networkInfo;
 
   UserRepositoryImpl({
     required this.remoteDataSource,
+    required this.localDataSource,
     required this.networkInfo,
   });
 
@@ -22,7 +25,8 @@ class UserRepositoryImpl implements UserRepository {
   Future<Either<Failure, User>> register(User user) async {
     if (await networkInfo.isConnected) {
       try {
-        final Set<String> roleNames = user.roles.map((role) => role.name).toSet();
+        final Set<String> roleNames =
+            user.roles.map((role) => role.name).toSet();
 
         final userModel = UserModel(
           firstName: user.firstName,
@@ -45,6 +49,23 @@ class UserRepositoryImpl implements UserRepository {
       return Left(NetworkFailure());
     }
   }
+
+  @override
+  Future<Either<Failure, AuthResponse>> login(
+      String username, String password) async {
+    if (await networkInfo.isConnected) {
+      try {
+        final result = await remoteDataSource.login(username, password);
+        await localDataSource.saveTokens(result.jwt, result.refreshToken);
+        return Right(result);
+      } on ServerException {
+        return Left(ServerFailure());
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
+  }
+
   @override
   Future<Either<Failure, List<int>>> getPhoto(String filename) {
     // TODO: implement getPhoto
@@ -60,12 +81,6 @@ class UserRepositoryImpl implements UserRepository {
   @override
   Future<Either<Failure, User>> getUserProfileById(int id) {
     // TODO: implement getUserProfileById
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<Either<Failure, AuthResponse>> login(String username, String password) {
-    // TODO: implement login
     throw UnimplementedError();
   }
 
