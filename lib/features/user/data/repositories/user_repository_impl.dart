@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:dartz/dartz.dart';
+import 'package:get/get.dart';
+import 'package:http/http.dart' as http;
 import 'package:online_classroom_frontend/core/error/exceptions.dart';
 import 'package:online_classroom_frontend/core/error/failures.dart';
 import 'package:online_classroom_frontend/features/user/data/datasources/user_local_data_source.dart';
@@ -14,6 +16,7 @@ class UserRepositoryImpl implements UserRepository {
   final UserRemoteDataSourceImpl remoteDataSource;
   final UserLocalDataSourceImpl localDataSource;
   final NetworkInfo networkInfo;
+  final client = Get.find<http.Client>();
 
   UserRepositoryImpl({
     required this.remoteDataSource,
@@ -67,38 +70,103 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<Either<Failure, List<int>>> getPhoto(String filename) {
-    // TODO: implement getPhoto
-    throw UnimplementedError();
+  Future<Either<Failure, AuthResponse>> refreshToken(
+      String refreshToken) async {
+    if (await networkInfo.isConnected) {
+      try {
+        final result = await remoteDataSource.refreshToken(refreshToken);
+        await localDataSource.saveTokens(result.jwt, result.refreshToken);
+        return Right(result);
+      } on ServerException {
+        return Left(ServerFailure());
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
   }
 
   @override
-  Future<Either<Failure, User>> getUserProfile() {
-    // TODO: implement getUserProfile
-    throw UnimplementedError();
+  Future<Either<Failure, User>> getUserProfile() async {
+    if (await networkInfo.isConnected) {
+      try {
+        final token = await localDataSource.getToken();
+        final remoteDataSourceWithToken =
+            UserRemoteDataSourceImpl(client, token: token);
+        final result = await remoteDataSourceWithToken.getUserProfile();
+        return Right(result);
+      } on ServerException {
+        return Left(ServerFailure());
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
   }
 
   @override
-  Future<Either<Failure, User>> getUserProfileById(int id) {
-    // TODO: implement getUserProfileById
-    throw UnimplementedError();
+  Future<Either<Failure, User>> getUserProfileById(int id) async {
+    if (await networkInfo.isConnected) {
+      try {
+        final token = await localDataSource.getToken();
+        final remoteDataSourceWithToken =
+            UserRemoteDataSourceImpl(client, token: token);
+        final result = await remoteDataSourceWithToken.getUserProfileById(id);
+        return Right(result);
+      } on ServerException {
+        return Left(ServerFailure());
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
   }
 
   @override
-  Future<Either<Failure, AuthResponse>> refreshToken(String refreshToken) {
-    // TODO: implement refreshToken
-    throw UnimplementedError();
+  Future<Either<Failure, String>> uploadPhoto(int id, File file) async {
+    if (await networkInfo.isConnected) {
+      try {
+        final token = await localDataSource.getToken();
+        final remoteDataSourceWithToken =
+            UserRemoteDataSourceImpl(client, token: token);
+        final result = await remoteDataSourceWithToken.uploadPhoto(id, file);
+        return Right(result);
+      } on ServerException {
+        return Left(ServerFailure());
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
   }
 
   @override
-  Future<Either<Failure, List<User>>> searchByImage(File image) {
-    // TODO: implement searchByImage
-    throw UnimplementedError();
+  Future<Either<Failure, List<int>>> getPhoto(String filename) async {
+    if (await networkInfo.isConnected) {
+      try {
+        final token = await localDataSource.getToken();
+        final remoteDataSourceWithToken =
+            UserRemoteDataSourceImpl(client, token: token);
+        final result = await remoteDataSourceWithToken.getPhoto(filename);
+        return Right(result);
+      } on ServerException {
+        return Left(ServerFailure());
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
   }
 
   @override
-  Future<Either<Failure, String>> uploadPhoto(int id, File file) {
-    // TODO: implement uploadPhoto
-    throw UnimplementedError();
+  Future<Either<Failure, List<User>>> searchByImage(File image) async {
+    if (await networkInfo.isConnected) {
+      try {
+        final token = await localDataSource.getToken();
+        final remoteDataSourceWithToken =
+            UserRemoteDataSourceImpl(client, token: token);
+        final result = await remoteDataSourceWithToken.searchByImage(image);
+        return Right(result);
+      } on ServerException {
+        return Left(ServerFailure());
+      }
+    } else {
+      return Left(NetworkFailure());
+    }
   }
 }

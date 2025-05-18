@@ -1,5 +1,5 @@
 class Constants {
-  static const String baseUrlLocalhost = 'http://localhost:5000';
+  static const String baseUrl = 'http://localhost:5000';
 
-  static const String baseUrl = 'http://192.168.91.18:5000';
+  // static const String baseUrl = 'http://192.168.91.18:5000';
 }
