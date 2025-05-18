@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:online_classroom_frontend/routes/app_routes.dart';
 import '../controllers/auth_controller.dart';
 
 class DashboardScreen extends StatelessWidget {
@@ -27,15 +28,15 @@ class DashboardScreen extends StatelessWidget {
                 style: TextStyle(fontSize: 20)),
             const SizedBox(height: 20),
             ElevatedButton(
-              onPressed: () => Get.toNamed('/profile'),
+              onPressed: () => Get.toNamed(AppRoutes.PROFILE),
               child: const Text('View Profile'),
             ),
             ElevatedButton(
-              onPressed: () => Get.toNamed('/photo-upload'),
+              onPressed: () => Get.toNamed(AppRoutes.UPLOAD_PHOTO),
               child: const Text('Upload Photo'),
             ),
             ElevatedButton(
-              onPressed: () => Get.toNamed('/image-search'),
+              onPressed: () => Get.toNamed(AppRoutes.IMAGE_SEARCH),
               child: const Text('Search by Image'),
             ),
           ],

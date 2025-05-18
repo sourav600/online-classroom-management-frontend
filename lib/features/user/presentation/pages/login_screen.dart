@@ -49,7 +49,8 @@ class LoginScreen extends StatelessWidget {
                             controller: usernameController,
                             decoration: const InputDecoration(
                               labelText: 'Username',
-                              prefixIcon: Icon(Icons.person),
+                              prefixIcon:
+                                  Icon(Icons.person, color: AppColors.primary),
                             ),
                             validator: (value) => value?.isEmpty ?? true
                                 ? 'Username is required'
@@ -61,9 +62,11 @@ class LoginScreen extends StatelessWidget {
                             obscureText: isPasswordHidden.value,
                             decoration: InputDecoration(
                               labelText: 'Password',
-                              prefixIcon: const Icon(Icons.lock),
+                              prefixIcon: const Icon(Icons.lock,
+                                  color: AppColors.primary),
                               suffixIcon: IconButton(
                                 icon: Icon(
+                                  color: AppColors.primary,
                                   isPasswordHidden.value
                                       ? Icons.visibility
                                       : Icons.visibility_off,

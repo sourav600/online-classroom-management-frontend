@@ -2,6 +2,7 @@ import 'package:get/get.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
+import 'package:online_classroom_frontend/core/utils/logger.dart';
 import 'package:online_classroom_frontend/features/user/data/datasources/user_local_data_source.dart';
 import 'package:online_classroom_frontend/features/user/domain/repositories/user_repository.dart';
 import 'package:online_classroom_frontend/features/user/domain/usecases/get_photo.dart';
@@ -19,50 +20,60 @@ import 'features/user/presentation/controllers/auth_controller.dart';
 import 'core/network/network_info.dart';
 
 void initDependencies() {
+  Logger.log("Dependencies initialized");
   // External services
   Get.lazyPut(() => http.Client());
-  Get.lazyPut(() => const FlutterSecureStorage());
-  Get.lazyPut(() => Connectivity());
+  Get.lazyPut(() => const FlutterSecureStorage(), fenix: true);
+  Get.lazyPut(() => Connectivity(), fenix: true);
 
   // Core
-  Get.lazyPut<NetworkInfo>(() => NetworkInfoImpl(Get.find<Connectivity>()));
+  Get.lazyPut<NetworkInfo>(() => NetworkInfoImpl(Get.find<Connectivity>()),
+      fenix: true);
 
   // Data sources
   Get.lazyPut<UserRemoteDataSource>(
-      () => UserRemoteDataSourceImpl(Get.find<http.Client>()));
-  Get.lazyPut<UserLocalDataSource>(() => UserLocalDataSourceImpl(Get.find()));
+      () => UserRemoteDataSourceImpl(Get.find<http.Client>()),
+      fenix: true);
+  Get.lazyPut<UserLocalDataSource>(() => UserLocalDataSourceImpl(Get.find()),
+      fenix: true);
 
   // Repository
-  Get.lazyPut<UserRepository>(() => UserRepositoryImpl(
-        remoteDataSource: Get.find(),
-        localDataSource: Get.find(),
-        networkInfo: Get.find<NetworkInfo>(),
-      ));
+  Get.lazyPut<UserRepository>(
+      () => UserRepositoryImpl(
+            remoteDataSource: Get.find(),
+            localDataSource: Get.find(),
+            networkInfo: Get.find<NetworkInfo>(),
+          ),
+      fenix: true);
 
   // Use cases
-  Get.lazyPut(() => RegisterUser(Get.find<UserRepository>()));
-  Get.lazyPut(() => LoginUser(Get.find()));
-  Get.lazyPut(() => RefreshToken(Get.find()));
-  Get.lazyPut(() => GetUserProfile(Get.find()));
-  Get.lazyPut(() => GetUserProfileById(Get.find()));
-  Get.lazyPut(() => UploadPhoto(Get.find()));
-  Get.lazyPut(() => GetPhoto(Get.find()));
-  Get.lazyPut(() => SearchByImage(Get.find()));
+  Get.lazyPut(() => RegisterUser(Get.find<UserRepository>()), fenix: true);
+  Get.lazyPut(() => LoginUser(Get.find()), fenix: true);
+  Get.lazyPut(() => RefreshToken(Get.find()), fenix: true);
+  Get.lazyPut(() => GetUserProfile(Get.find()), fenix: true);
+  Get.lazyPut(() => GetUserProfileById(Get.find()), fenix: true);
+  Get.lazyPut(() => UploadPhoto(Get.find()), fenix: true);
+  Get.lazyPut(() => GetPhoto(Get.find()), fenix: true);
+  Get.lazyPut(() => SearchByImage(Get.find()), fenix: true);
 
   // Controllers
-  Get.lazyPut(() => AuthController(
-      registerUser: Get.find<RegisterUser>(),
-      loginUser: Get.find(),
-      refreshToken: Get.find()));
+  Get.lazyPut(
+      () => AuthController(
+          registerUser: Get.find(),
+          loginUser: Get.find(),
+          refreshToken: Get.find()),
+      fenix: true);
 
-  Get.lazyPut(() => UserController(
-        localDataSource: Get.find(),
-        getUserProfile: Get.find<GetUserProfile>(),
-        getUserProfileById: Get.find(),
-        uploadPhoto: Get.find(),
-        getPhoto: Get.find(),
-        searchByImage: Get.find(),
-      ));
+  Get.lazyPut(
+      () => UserController(
+            localDataSource: Get.find(),
+            getUserProfile: Get.find(),
+            getUserProfileById: Get.find(),
+            uploadPhoto: Get.find(),
+            getPhoto: Get.find(),
+            searchByImage: Get.find(),
+          ),
+      fenix: true);
 
   // Eager initialization
   Get.put(UserRemoteDataSourceImpl(Get.find<http.Client>()));
